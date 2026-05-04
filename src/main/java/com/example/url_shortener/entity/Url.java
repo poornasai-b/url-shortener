@@ -19,7 +19,7 @@ public class Url {
     @Column(nullable = false, unique = true)
     private String shortCode;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "datetime")
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
