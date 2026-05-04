@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snip — URL Shortener</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: #1e1e1e;
+    --accent: #c8f135;
+    --text: #f0f0f0;
+    --muted: #555;
+    --error: #ff4d4d;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(200,241,53,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(200,241,53,0.03) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; z-index: 0; }
+  body::after { content: ''; position: fixed; top: -200px; left: 50%; transform: translateX(-50%); width: 800px; height: 600px; background: radial-gradient(ellipse, rgba(200,241,53,0.06) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+  .container { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; padding: 0 24px; }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 28px 0; border-bottom: 1px solid var(--border); }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 3px; color: var(--accent); text-decoration: none; }
+  .logo span { color: var(--text); }
+  .nav-tag { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; border: 1px solid var(--border); padding: 6px 12px; border-radius: 2px; }
+  .hero { padding: 100px 0 60px; text-align: center; }
+  .hero-eyebrow { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 24px; opacity: 0; animation: fadeUp 0.6s ease forwards 0.1s; }
+  .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(72px, 12vw, 130px); line-height: 0.9; letter-spacing: -1px; margin-bottom: 24px; opacity: 0; animation: fadeUp 0.6s ease forwards 0.2s; }
+  .hero-title .highlight { color: var(--accent); display: block; }
+  .hero-sub { font-size: 16px; color: var(--muted); font-weight: 300; max-width: 400px; margin: 0 auto 60px; line-height: 1.6; opacity: 0; animation: fadeUp 0.6s ease forwards 0.3s; }
+  .shortener-box { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 8px; display: flex; gap: 8px; opacity: 0; animation: fadeUp 0.6s ease forwards 0.4s; transition: border-color 0.2s; }
+  .shortener-box:focus-within { border-color: var(--accent); }
+  .url-input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: 'DM Mono', monospace; font-size: 14px; padding: 14px 16px; min-width: 0; }
+  .url-input::placeholder { color: var(--muted); }
+  .shorten-btn { background: var(--accent); color: #0a0a0a; border: none; padding: 14px 28px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 2px; letter-spacing: 0.5px; transition: all 0.15s ease; white-space: nowrap; flex-shrink: 0; }
+  .shorten-btn:hover { background: #d4f545; transform: translateY(-1px); }
+  .shorten-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .result-box { margin-top: 16px; background: var(--surface); border: 1px solid var(--accent); border-radius: 4px; padding: 20px 24px; display: none; align-items: center; justify-content: space-between; gap: 16px; animation: fadeUp 0.3s ease forwards; }
+  .result-box.show { display: flex; }
+  .result-left { flex: 1; min-width: 0; }
+  .result-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; }
+  .result-url { font-family: 'DM Mono', monospace; font-size: 15px; color: var(--text); word-break: break-all; text-decoration: none; }
+  .result-url:hover { color: var(--accent); }
+  .copy-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 10px 20px; font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; border-radius: 2px; transition: all 0.15s ease; white-space: nowrap; flex-shrink: 0; }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--accent); color: var(--accent); background: rgba(200,241,53,0.05); }
+  .error-box { margin-top: 12px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--error); display: none; padding: 12px 16px; border: 1px solid rgba(255,77,77,0.2); border-radius: 2px; background: rgba(255,77,77,0.05); }
+  .error-box.show { display: block; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 80px 0; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; opacity: 0; animation: fadeUp 0.6s ease forwards 0.5s; }
+  .stat { background: var(--surface); padding: 32px 24px; text-align: center; }
+  .stat-number { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--accent); letter-spacing: 1px; line-height: 1; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 8px; letter-spacing: 1px; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 80px; opacity: 0; animation: fadeUp 0.6s ease forwards 0.6s; }
+  .feature { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 28px 24px; transition: border-color 0.2s; }
+  .feature:hover { border-color: rgba(200,241,53,0.3); }
+  .feature-icon { font-size: 24px; margin-bottom: 16px; }
+  .feature-title { font-size: 14px; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+  .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  footer { border-top: 1px solid var(--border); padding: 32px 0; display: flex; align-items: center; justify-content: space-between; }
+  .footer-left { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+  .footer-left span { color: var(--accent); }
+  .footer-right { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+  .shorten-btn .btn-text { display: inline; }
+  .shorten-btn .btn-loading { display: none; }
+  .shorten-btn.loading .btn-text { display: none; }
+  .shorten-btn.loading .btn-loading { display: inline; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 600px) { .hero { padding: 60px 0 40px; } .stats { grid-template-columns: 1fr; } .features { grid-template-columns: 1fr; } .shortener-box { flex-direction: column; } footer { flex-direction: column; gap: 12px; text-align: center; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <nav>
+    <a href="/" class="logo">SNI<span>P</span></a>
+    <div class="nav-tag">URL SHORTENER</div>
+  </nav>
+  <section class="hero">
+    <p class="hero-eyebrow">// Fast · Free · Forever</p>
+    <h1 class="hero-title">MAKE IT<span class="highlight">SHORT.</span></h1>
+    <p class="hero-sub">Paste your long URL. Get a clean, shareable link in milliseconds.</p>
+    <div class="shortener-box">
+      <input type="url" class="url-input" id="urlInput" placeholder="https://your-very-long-url-goes-here.com/..." autocomplete="off" spellcheck="false"/>
+      <button class="shorten-btn" id="shortenBtn" onclick="shortenUrl()">
+        <span class="btn-text">SNIP IT →</span>
+        <span class="btn-loading">SNIPPING...</span>
+      </button>
+    </div>
+    <div class="error-box" id="errorBox"></div>
+    <div class="result-box" id="resultBox">
+      <div class="result-left">
+        <div class="result-label">YOUR SHORT URL</div>
+        <a class="result-url" id="resultUrl" href="#" target="_blank"></a>
+      </div>
+      <button class="copy-btn" id="copyBtn" onclick="copyUrl()">COPY</button>
+    </div>
+  </section>
+  <div class="stats">
+    <div class="stat"><div class="stat-number">6</div><div class="stat-label">Char Short Code</div></div>
+    <div class="stat"><div class="stat-number">∞</div><div class="stat-label">URLs Supported</div></div>
+    <div class="stat"><div class="stat-number">0ms</div><div class="stat-label">Redirect Delay</div></div>
+  </div>
+  <div class="features">
+    <div class="feature"><div class="feature-icon">⚡</div><div class="feature-title">Instant Redirect</div><div class="feature-desc">302 redirects happen at the server level — no JavaScript required.</div></div>
+    <div class="feature"><div class="feature-icon">📊</div><div class="feature-title">Click Tracking</div><div class="feature-desc">Every click is counted and stored. Know exactly how your links perform.</div></div>
+    <div class="feature"><div class="feature-icon">🔒</div><div class="feature-title">Unique Codes</div><div class="feature-desc">Collision-proof 6-character codes generated with guaranteed uniqueness.</div></div>
+  </div>
+  <footer>
+    <div class="footer-left">Built with <span>Spring Boot</span> + MySQL + Render</div>
+    <div class="footer-right">© 2026 SNIP</div>
+  </footer>
+</div>
+<script>
+  let currentShortUrl = '';
+  async function shortenUrl() {
+    const input = document.getElementById('urlInput');
+    const btn = document.getElementById('shortenBtn');
+    const errorBox = document.getElementById('errorBox');
+    const resultBox = document.getElementById('resultBox');
+    const url = input.value.trim();
+    errorBox.classList.remove('show');
+    resultBox.classList.remove('show');
+    if (!url) { showError('Please enter a URL first.'); return; }
+    if (!url.startsWith('http://') && !url.startsWith('https://')) { showError('URL must start with http:// or https://'); return; }
+    btn.classList.add('loading');
+    btn.disabled = true;
+    try {
+      const response = await fetch(`/api/shorten?originalUrl=${encodeURIComponent(url)}`, { method: 'POST' });
+      if (!response.ok) throw new Error('Server error');
+      const data = await response.json();
+      const shortUrl = `${window.location.origin}/api/${data.shortCode}`;
+      currentShortUrl = shortUrl;
+      document.getElementById('resultUrl').textContent = shortUrl;
+      document.getElementById('resultUrl').href = shortUrl;
+      resultBox.classList.add('show');
+      input.value = '';
+    } catch (err) {
+      showError('Something went wrong. Please try again.');
+    } finally {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+    }
+  }
+  function showError(msg) { const e = document.getElementById('errorBox'); e.textContent = msg; e.classList.add('show'); }
+  async function copyUrl() {
+    const copyBtn = document.getElementById('copyBtn');
+    try {
+      await navigator.clipboard.writeText(currentShortUrl);
+      copyBtn.textContent = 'COPIED ✓';
+      copyBtn.classList.add('copied');
+      setTimeout(() => { copyBtn.textContent = 'COPY'; copyBtn.classList.remove('copied'); }, 2000);
+    } catch { copyBtn.textContent = 'COPY FAILED'; setTimeout(() => { copyBtn.textContent = 'COPY'; }, 2000); }
+  }
+  document.getElementById('urlInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') shortenUrl(); });
+</script>
+</body>
+</html>
