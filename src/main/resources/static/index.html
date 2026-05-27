@@ -36,28 +36,59 @@
   .shorten-btn { background: var(--accent); color: #0a0a0a; border: none; padding: 14px 28px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 2px; letter-spacing: 0.5px; transition: all 0.15s ease; white-space: nowrap; flex-shrink: 0; }
   .shorten-btn:hover { background: #d4f545; transform: translateY(-1px); }
   .shorten-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-  .result-box { margin-top: 16px; background: var(--surface); border: 1px solid var(--accent); border-radius: 4px; padding: 20px 24px; display: none; align-items: center; justify-content: space-between; gap: 16px; animation: fadeUp 0.3s ease forwards; }
+  .result-box { margin-top: 16px; background: var(--surface); border: 1px solid var(--accent); border-radius: 4px; padding: 16px 20px; display: none; align-items: center; gap: 12px; animation: fadeUp 0.3s ease forwards; }
   .result-box.show { display: flex; }
   .result-left { flex: 1; min-width: 0; }
   .result-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; }
-  .result-url { font-family: 'DM Mono', monospace; font-size: 15px; color: var(--text); word-break: break-all; text-decoration: none; }
+  .result-url { font-family: 'DM Mono', monospace; font-size: 15px; color: var(--text); word-break: break-all; text-decoration: none; display: block; }
   .result-url:hover { color: var(--accent); }
-  .copy-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 10px 20px; font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; border-radius: 2px; transition: all 0.15s ease; white-space: nowrap; flex-shrink: 0; }
-  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .copy-btn.copied { border-color: var(--accent); color: var(--accent); background: rgba(200,241,53,0.05); }
+
+  /* COPY BUTTON — icon style like Claude */
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(200,241,53,0.05); }
+  .copy-btn.copied { border-color: var(--accent); color: var(--accent); background: rgba(200,241,53,0.08); }
+  .copy-btn svg { width: 16px; height: 16px; }
+  .copy-btn .check-icon { display: none; }
+  .copy-btn.copied .copy-icon { display: none; }
+  .copy-btn.copied .check-icon { display: block; }
+
+  .tooltip {
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+  }
+  .copy-btn:hover .tooltip { opacity: 1; }
+  .copy-btn.copied .tooltip { opacity: 1; content: 'Copied!'; }
+
   .error-box { margin-top: 12px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--error); display: none; padding: 12px 16px; border: 1px solid rgba(255,77,77,0.2); border-radius: 2px; background: rgba(255,77,77,0.05); }
   .error-box.show { display: block; }
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 80px 0; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; opacity: 0; animation: fadeUp 0.6s ease forwards 0.5s; }
-  .stat { background: var(--surface); padding: 32px 24px; text-align: center; }
-  .stat-number { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--accent); letter-spacing: 1px; line-height: 1; }
-  .stat-label { font-size: 12px; color: var(--muted); margin-top: 8px; letter-spacing: 1px; text-transform: uppercase; font-family: 'DM Mono', monospace; }
-  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 80px; opacity: 0; animation: fadeUp 0.6s ease forwards 0.6s; }
-  .feature { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 28px 24px; transition: border-color 0.2s; }
-  .feature:hover { border-color: rgba(200,241,53,0.3); }
-  .feature-icon { font-size: 24px; margin-bottom: 16px; }
-  .feature-title { font-size: 14px; font-weight: 500; margin-bottom: 8px; color: var(--text); }
-  .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
-  footer { border-top: 1px solid var(--border); padding: 32px 0; display: flex; align-items: center; justify-content: space-between; }
+  footer { border-top: 1px solid var(--border); padding: 32px 0; margin-top: 80px; display: flex; align-items: center; justify-content: space-between; }
   .footer-left { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 1px; }
   .footer-left span { color: var(--accent); }
   .footer-right { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
@@ -66,7 +97,7 @@
   .shorten-btn.loading .btn-text { display: none; }
   .shorten-btn.loading .btn-loading { display: inline; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  @media (max-width: 600px) { .hero { padding: 60px 0 40px; } .stats { grid-template-columns: 1fr; } .features { grid-template-columns: 1fr; } .shortener-box { flex-direction: column; } footer { flex-direction: column; gap: 12px; text-align: center; } }
+  @media (max-width: 600px) { .hero { padding: 60px 0 40px; } .shortener-box { flex-direction: column; } footer { flex-direction: column; gap: 12px; text-align: center; } }
 </style>
 </head>
 <body>
@@ -92,19 +123,20 @@
         <div class="result-label">YOUR SHORT URL</div>
         <a class="result-url" id="resultUrl" href="#" target="_blank"></a>
       </div>
-      <button class="copy-btn" id="copyBtn" onclick="copyUrl()">COPY</button>
+      <button class="copy-btn" id="copyBtn" onclick="copyUrl()" title="Copy">
+        <span class="tooltip" id="tooltipText">Copy</span>
+        <!-- Copy icon -->
+        <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <!-- Check icon -->
+        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </button>
     </div>
   </section>
-  <div class="stats">
-    <div class="stat"><div class="stat-number">6</div><div class="stat-label">Char Short Code</div></div>
-    <div class="stat"><div class="stat-number">∞</div><div class="stat-label">URLs Supported</div></div>
-    <div class="stat"><div class="stat-number">0ms</div><div class="stat-label">Redirect Delay</div></div>
-  </div>
-  <div class="features">
-    <div class="feature"><div class="feature-icon">⚡</div><div class="feature-title">Instant Redirect</div><div class="feature-desc">302 redirects happen at the server level — no JavaScript required.</div></div>
-    <div class="feature"><div class="feature-icon">📊</div><div class="feature-title">Click Tracking</div><div class="feature-desc">Every click is counted and stored. Know exactly how your links perform.</div></div>
-    <div class="feature"><div class="feature-icon">🔒</div><div class="feature-title">Unique Codes</div><div class="feature-desc">Collision-proof 6-character codes generated with guaranteed uniqueness.</div></div>
-  </div>
   <footer>
     <div class="footer-left">Built with <span>Spring Boot</span> + MySQL + Render</div>
     <div class="footer-right">© 2026 SNIP</div>
@@ -144,12 +176,19 @@
   function showError(msg) { const e = document.getElementById('errorBox'); e.textContent = msg; e.classList.add('show'); }
   async function copyUrl() {
     const copyBtn = document.getElementById('copyBtn');
+    const tooltip = document.getElementById('tooltipText');
     try {
       await navigator.clipboard.writeText(currentShortUrl);
-      copyBtn.textContent = 'COPIED ✓';
       copyBtn.classList.add('copied');
-      setTimeout(() => { copyBtn.textContent = 'COPY'; copyBtn.classList.remove('copied'); }, 2000);
-    } catch { copyBtn.textContent = 'COPY FAILED'; setTimeout(() => { copyBtn.textContent = 'COPY'; }, 2000); }
+      tooltip.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        tooltip.textContent = 'Copy';
+      }, 2000);
+    } catch {
+      tooltip.textContent = 'Failed!';
+      setTimeout(() => { tooltip.textContent = 'Copy'; }, 2000);
+    }
   }
   document.getElementById('urlInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') shortenUrl(); });
 </script>
